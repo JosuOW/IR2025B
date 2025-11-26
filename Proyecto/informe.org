@@ -1,0 +1,46 @@
+#+TITLE: Informe — Sistema de Recuperación de Información
+#+AUTHOR: [Tu nombre]
+#+DATE: [Fecha]
+
+* Resumen
+Se implementó un sistema de recuperación de información con:
+- Índice invertido, tokenización y stopwords (index.py).
+- Modelos Jaccard (binario), TF-IDF+Coseno (scikit-learn) y BM25 (implementación propia) (models.py).
+- CLI para ejecutar consultas y mostrar ranking de documentos (cli.py).
+- Evaluación mediante Precision, Recall y MAP (evaluation.py).
+
+* Corpus
+El sistema espera un corpus en formato CSV con columna 'Comment'. El usuario es responsable de limpiar/normalizar el corpus antes de indexarlo.
+
+* Diseño
+** Indexado
+Se utiliza tokenización simple (función `simple_tokenize`) y construcción de índice inverted (term -> {doc:freq}).
+** Modelos
+- Jaccard: similitud sobre representaciones binarias (presencia/ausencia).
+- TF-IDF: vectorización con `TfidfVectorizer` y similitud coseno.
+- BM25: implementado en `models.BM25` con parámetros k1 y b.
+
+* Interfaz
+CLI básica (`cli.py`) con parámetros:
+- --corpus PATH
+- --model [jaccard|tfidf|bm25]
+- --query "texto libre"
+- --top K
+
+* Evaluación
+Colocar archivo `qrels.txt` con formato: `qid docid relevance`.  
+Funciones en `evaluation.py` permiten calcular precision@k, recall@k, AP y MAP.
+
+* Ejemplos de ejecución
+- Ejecutar consulta BM25:
+  #+begin_src sh
+  python cli.py --corpus sentiment_corpus.csv --model bm25 --query "apple pay" --top 10
+  #+end_src
+
+* Limitaciones y futuras mejoras
+- Tokenizador simple; podría reemplazarse por spaCy para mejor calidad.
+- Stopwords básicas; actualmente en index.simple_tokenize se pueden pasar listas personalizadas.
+- No hay interfaz web (Streamlit) incluida, pero se puede añadir fácilmente.
+
+* Conclusión
+El proyecto cumple con los requisitos de `proy01.pdf`: índice invertido, modelos Jaccard/TF-IDF/BM25, CLI, y evaluación con métricas estándar.
