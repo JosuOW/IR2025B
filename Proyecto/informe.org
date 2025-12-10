@@ -1,46 +1,81 @@
 #+TITLE: Informe — Sistema de Recuperación de Información
-#+AUTHOR: [Tu nombre]
-#+DATE: [Fecha]
+#+AUTHOR: Josune Singaña
+#+DATE: 10 de diciembre de 2025
 
 * Resumen
-Se implementó un sistema de recuperación de información con:
-- Índice invertido, tokenización y stopwords (index.py).
-- Modelos Jaccard (binario), TF-IDF+Coseno (scikit-learn) y BM25 (implementación propia) (models.py).
-- CLI para ejecutar consultas y mostrar ranking de documentos (cli.py).
-- Evaluación mediante Precision, Recall y MAP (evaluation.py).
+  Este proyecto implementa un sistema de Recuperación de Información.
+El sistema permite indexar un corpus, ejecutar consultas de texto libre y evaluar los resultados mediante métricas estándar.
+
+El corpus utilizado es *Amazon Fine Food Reviews*, empleando únicamente la columna =Text= (contenido de la reseña)
 
 * Corpus
-El sistema espera un corpus en formato CSV con columna 'Comment'. El usuario es responsable de limpiar/normalizar el corpus antes de indexarlo.
+El corpus contiene miles de reseñas escritas por usuarios. Solo se utiliza el texto principal de cada reseña.
+El usuario puede limpiar manualmente el CSV antes de usarlo.
+
+El módulo =index.py= permite cargar el corpus desde CSV y obtener una lista de documentos.
+* Preprocesamiento
+Se implementa un *preprocesamiento fuerte* en =index.py= mediante la función:
+
+- Conversión a minúsculas
+- Eliminación de HTML
+- Eliminación de caracteres especiales
+- Normalización de espacios
+- Tokenización por espacios
+- Stopwords básicas
+
+El objetivo es obtener tokens representativos y homogéneos.
+
 
 * Diseño
-** Indexado
-Se utiliza tokenización simple (función `simple_tokenize`) y construcción de índice inverted (term -> {doc:freq}).
-** Modelos
-- Jaccard: similitud sobre representaciones binarias (presencia/ausencia).
-- TF-IDF: vectorización con `TfidfVectorizer` y similitud coseno.
-- BM25: implementado en `models.BM25` con parámetros k1 y b.
+* Construcción del índice
+El archivo =index.py= incluye:
+- Tokenizador
+- Diccionario invertido: término → {doc: frecuencia}
+- Cálculo de longitudes documentales
 
-* Interfaz
-CLI básica (`cli.py`) con parámetros:
-- --corpus PATH
-- --model [jaccard|tfidf|bm25]
-- --query "texto libre"
-- --top K
+Este índice sirve como base para los modelos Jaccard, TF-IDF y BM25.
+
+* Modelos de Recuperación
+** Jaccard (binario)
+Mide intersección sobre unión entre tokens de consulta y documento.
+
+** TF-IDF (vectorial)
+Se utiliza =TfidfVectorizer= de scikit-learn por eficiencia y robustez.
+Las similitudes se calculan con coseno.
+
+** BM25
+Implementación propia:
+- Parámetros =k1=1.5= y =b=0.75=
+- Cálculo de IDF con suavizado
+- Normalización por longitud del documento
+
+* Interfaces
+** CLI (archivo cli.py)
+Permite ejecutar:
+#+BEGIN_SRC sh
+python cli.py --corpus amazon.csv --model bm25 --query "great taste"
+#+END_SRC
+
+** Interfaz simple (archivo interface_simple.py)
+Muestra un menú interactivo que facilita la ejecución de consultas.
+
 
 * Evaluación
-Colocar archivo `qrels.txt` con formato: `qid docid relevance`.  
-Funciones en `evaluation.py` permiten calcular precision@k, recall@k, AP y MAP.
+El módulo =evaluation.py= permite calcular:
+- Precision@k
+- Recall@k
+- Average Precision (AP)
+- Mean Average Precision (MAP)
 
-* Ejemplos de ejecución
-- Ejecutar consulta BM25:
-  #+begin_src sh
-  python cli.py --corpus sentiment_corpus.csv --model bm25 --query "apple pay" --top 10
-  #+end_src
+El archivo =qrels_utils.py= permite:
+- Cargar qrels reales
+- Generar qrels de ejemplo
 
-* Limitaciones y futuras mejoras
-- Tokenizador simple; podría reemplazarse por spaCy para mejor calidad.
-- Stopwords básicas; actualmente en index.simple_tokenize se pueden pasar listas personalizadas.
-- No hay interfaz web (Streamlit) incluida, pero se puede añadir fácilmente.
 
 * Conclusión
-El proyecto cumple con los requisitos de `proy01.pdf`: índice invertido, modelos Jaccard/TF-IDF/BM25, CLI, y evaluación con métricas estándar.
+Este sistema cumple con todas las especificaciones solicitadas:
+- Indexado
+- Preprocesamiento
+- Modelos Jaccard, TF-IDF y BM25
+- Interfaz CLI y menú simple
+- Evaluación con qrels

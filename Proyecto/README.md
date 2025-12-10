@@ -1,6 +1,6 @@
 # IR Project — Sistema de Recuperación de Información
 
-Este repositorio contiene una implementación simple de un sistema IR solicitado en `proy01.pdf`.
+Este repositorio contiene una implementación simple de un sistema RI.
 Implementa:
 - Índice invertido (index.py)
 - Modelos de recuperación:
@@ -19,20 +19,27 @@ Instalación rápida:
 pip install pandas scikit-learn numpy
 ```
 
-## Estructura
-- `index.py` — construcción del índice, tokenización.
-- `models.py` — Jaccard, TF-IDF wrapper, BM25.
-- `evaluation.py` — métricas y carga de qrels.
-- `cli.py` — interfaz CLI para ejecutar consultas.
-- `main.py` — wrapper para ejecutar `cli.py`.
+## Estructura del proyecto
+- index.py — Preprocesamiento + Indexado
+- models.py — Modelos Jaccard, TF-IDF, BM25
+- evaluation.py — Métricas IR
+- qrels_utils.py — Manejo de qrels
+- cli.py — Interfaz por línea de comandos
+- interface_simple.py — Menú interactivo
 
 ## Uso
 Ejemplo:
 ```bash
-python cli.py --corpus path/to/sentiment_corpus.csv --model bm25 --query "apple pay" --top 10
+python cli.py --corpus amazon.csv --model bm25 --query "great flavor"
 ```
 
-## Notes
-- El corpus debe ser un CSV con columna `Comment`.
-- Qrels deben tener formato: `query_id doc_id relevance` por línea (relevance 1/0).
-- No se incluyen scripts de limpieza de corpus: el usuario debe preprocesar el CSV si lo necesita.
+```bash
+python interface_simple.py
+```
+Qrels
+```bash
+python -c "import qrels_utils as q; q.save_example_qrels('qrels.txt')"
+
+```
+
+
