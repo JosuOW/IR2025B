@@ -1,0 +1,134 @@
+% Created 2025-12-10 Wed 09:51
+% Intended LaTeX compiler: pdflatex
+\documentclass[11pt]{article}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage{graphicx}
+\usepackage{longtable}
+\usepackage{wrapfig}
+\usepackage{rotating}
+\usepackage[normalem]{ulem}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{capt-of}
+\usepackage{hyperref}
+\author{Josune Singaña}
+\date{10 de diciembre de 2025}
+\title{Informe — Sistema de Recuperación de Información}
+\hypersetup{
+ pdfauthor={Josune Singaña},
+ pdftitle={Informe — Sistema de Recuperación de Información},
+ pdfkeywords={},
+ pdfsubject={},
+ pdfcreator={Emacs 29.3 (Org mode 9.6.15)}, 
+ pdflang={English}}
+\begin{document}
+
+\maketitle
+\tableofcontents
+
+
+\section{Resumen}
+\label{sec:org10ce954}
+  Este proyecto implementa un sistema de Recuperación de Información.
+El sistema permite indexar un corpus, ejecutar consultas de texto libre y evaluar los resultados mediante métricas estándar.
+
+El corpus utilizado es \textbf{Amazon Fine Food Reviews}, empleando únicamente la columna \texttt{Text} (contenido de la reseña)
+
+\section{Corpus}
+\label{sec:org0f92eba}
+El corpus contiene miles de reseñas escritas por usuarios. Solo se utiliza el texto principal de cada reseña.
+El usuario puede limpiar manualmente el CSV antes de usarlo.
+
+El módulo \texttt{index.py} permite cargar el corpus desde CSV y obtener una lista de documentos.
+\section{Preprocesamiento}
+\label{sec:org13ff7b4}
+Se implementa un \textbf{preprocesamiento fuerte} en \texttt{index.py} mediante la función:
+
+\begin{itemize}
+\item Conversión a minúsculas
+\item Eliminación de HTML
+\item Eliminación de caracteres especiales
+\item Normalización de espacios
+\item Tokenización por espacios
+\item Stopwords básicas
+\end{itemize}
+
+El objetivo es obtener tokens representativos y homogéneos.
+
+
+\section{Diseño}
+\label{sec:orgb1208aa}
+\section{Construcción del índice}
+\label{sec:org9f6875e}
+El archivo \texttt{index.py} incluye:
+\begin{itemize}
+\item Tokenizador
+\item Diccionario invertido: término → \{doc: frecuencia\}
+\item Cálculo de longitudes documentales
+\end{itemize}
+
+Este índice sirve como base para los modelos Jaccard, TF-IDF y BM25.
+
+\section{Modelos de Recuperación}
+\label{sec:org8448400}
+\subsection{Jaccard (binario)}
+\label{sec:org7d1f8f8}
+Mide intersección sobre unión entre tokens de consulta y documento.
+
+\subsection{TF-IDF (vectorial)}
+\label{sec:org9870a60}
+Se utiliza \texttt{TfidfVectorizer} de scikit-learn por eficiencia y robustez.
+Las similitudes se calculan con coseno.
+
+\subsection{BM25}
+\label{sec:org3ad0be9}
+Implementación propia:
+\begin{itemize}
+\item Parámetros \texttt{k1=1.5} y \texttt{b=0.75}
+\item Cálculo de IDF con suavizado
+\item Normalización por longitud del documento
+\end{itemize}
+
+\section{Interfaces}
+\label{sec:orgf8c8dfc}
+\subsection{CLI (archivo cli.py)}
+\label{sec:orgae8554c}
+Permite ejecutar:
+\begin{verbatim}
+python cli.py --corpus amazon.csv --model bm25 --query "great taste"
+\end{verbatim}
+
+\subsection{Interfaz simple (archivo interface\textsubscript{simple.py})}
+\label{sec:org99c0b04}
+Muestra un menú interactivo que facilita la ejecución de consultas.
+
+
+\section{Evaluación}
+\label{sec:org8ebfd6d}
+El módulo \texttt{evaluation.py} permite calcular:
+\begin{itemize}
+\item Precision@k
+\item Recall@k
+\item Average Precision (AP)
+\item Mean Average Precision (MAP)
+\end{itemize}
+
+El archivo \texttt{qrels\_utils.py} permite:
+\begin{itemize}
+\item Cargar qrels reales
+\item Generar qrels de ejemplo
+\end{itemize}
+
+
+\section{Conclusión}
+\label{sec:orgb00bd4c}
+Este sistema cumple con todas las especificaciones solicitadas:
+\begin{itemize}
+\item Indexado
+\item Preprocesamiento
+\item Modelos Jaccard, TF-IDF y BM25
+\item Interfaz CLI y menú simple
+\item Evaluación con qrels
+\end{itemize}
+\end{document}
